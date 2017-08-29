@@ -1,0 +1,72 @@
+{
+  "name": "ember-graph-data",
+  "version": "0.0.0",
+  "description": "An ember-cli addon for the Apollo GraphQL Client.",
+  "keywords": [
+    "ember-addon",
+    "apollo-client",
+    "apollo",
+    "graphql"
+  ],
+  "license": "MIT",
+  "author": "Damian Romanów",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "repository": "https://github.com/HarenBroog/ember-graph-data",
+  "scripts": {
+    "build": "ember build",
+    "start": "ember server",
+    "test": "ember try:each"
+  },
+  "dependencies": {
+    "apollo-client": "^1.0.4",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "ember-cli-babel": "^6.8.1",
+    "ember-fetch": "^3.3.1",
+    "ember-lodash": "^4.17.5",
+    "extract-files": "^2.0.1",
+    "graphql": "^0.9.1",
+    "graphql-tag": "^1.2.4",
+    "graphql-tools": "^0.10.0",
+    "webpack": "^2.2.1"
+  },
+  "devDependencies": {
+    "broccoli-asset-rev": "^2.4.5",
+    "ember-ajax": "^2.4.1",
+    "ember-cli": "2.11.0",
+    "ember-cli-app-version": "^2.0.0",
+    "ember-cli-dependency-checker": "^1.3.0",
+    "ember-cli-eslint": "3.0.2",
+    "ember-cli-htmlbars": "^1.1.1",
+    "ember-cli-htmlbars-inline-precompile": "^0.3.3",
+    "ember-cli-inject-live-reload": "^1.4.1",
+    "ember-cli-pretender": "^1.0.1",
+    "ember-cli-qunit": "^3.0.1",
+    "ember-cli-release": "^0.2.9",
+    "ember-cli-shims": "^1.0.2",
+    "ember-cli-sri": "^2.1.0",
+    "ember-cli-test-loader": "^1.1.0",
+    "ember-cli-uglify": "^1.2.0",
+    "ember-common-tags": "0.1.2",
+    "ember-data": "^2.11.0",
+    "ember-disable-prototype-extensions": "^1.1.0",
+    "ember-export-application-global": "^1.0.5",
+    "ember-load-initializers": "^0.6.0",
+    "ember-network": "0.3.1",
+    "ember-resolver": "^2.0.3",
+    "ember-source": "^2.11.0",
+    "eslint-plugin-ember-suave": "^1.0.0",
+    "loader.js": "^4.0.10"
+  },
+  "engines": {
+    "node": ">= 0.12.0"
+  },
+  "ember-addon": {
+    "configPath": "tests/dummy/config",
+    "before": [
+      "ember-cli-babel"
+    ]
+  }
+}
