@@ -4,8 +4,20 @@ GraphQL & EmberData integration for ambitious apps!
 
 WIP
 
-## Usage
+## Installation
 
+Ensure you have `ember-data` installed:
+
+```bash
+ember install ember-data
+```
+
+And then:
+```bash
+ember install ember-graph-data  
+```
+## Configuration
+### minimal config
 `app/adapters/application.js`
 ```js
 import Ember  from 'ember'
@@ -18,7 +30,22 @@ const {
 export default GraphAdapter.extend({
   host:       'http://localhost:4000', // your API host
   namespace:  'api/v1/graphq',         //your API namespace
+})
+```
+`app/serializers/application.js`
+```js
+import Ember from 'ember'
+import GraphSerializer from 'ember-graph-data/serializer'
 
+export default GraphSerializer.extend()
+```
+
+### middle & after wares
+
+`app/adapters/application.js`
+```js
+export default GraphAdapter.extend({
+  // ...
   middlewares: computed(function() {
     return [this.authorize]
   }),
@@ -47,10 +74,17 @@ export default GraphAdapter.extend({
 })
 ```
 
-`app/serializers/application.js`
+## Usage
+
+`app/routes/posts.js`
 ```js
 import Ember from 'ember'
-import GraphSerializer from 'ember-graph-data/serializer'
+import query from 'my-app/gql/queries/posts'
 
-export default GraphSerializer.extend()
-```
+export default Ember.Route.extend({
+  model(params) {
+    let variables = { page: 1 }
+    return this.store.query({query, variables})
+  }
+})
+```  
