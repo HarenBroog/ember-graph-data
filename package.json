@@ -26,12 +26,12 @@
     "extract-files": "^2.0.1",
     "graphql": "^0.9.1",
     "graphql-tag": "^1.2.4",
-    "graphql-tools": "^0.10.0"
-  },
-  "devDependencies": {
+    "graphql-tools": "^0.10.0",
     "webpack": "^2.2.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "ember-cli-babel": "^6.8.1",
+    "ember-cli-babel": "^6.8.1"
+  },
+  "devDependencies": {
     "broccoli-asset-rev": "^2.4.5",
     "ember-ajax": "^2.4.1",
     "ember-cli": "2.11.0",
