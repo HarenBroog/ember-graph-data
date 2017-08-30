@@ -1,6 +1,7 @@
 import DS from 'ember-data';
 import Ember from 'ember';
-import _     from 'lodash'
+
+import mapValues from './utils/map-values'
 
 const {
   String: {
@@ -13,6 +14,7 @@ const {
   isNone,
   get
 } = Ember
+
 
 export default DS.JSONSerializer.extend({
   isNewSerializerAPI: true,
@@ -50,7 +52,7 @@ export default DS.JSONSerializer.extend({
         this.applyTransforms(modelClass, resourceHash.attributes);
         data = store.push({data: resourceHash})
       } else {
-        data = _.mapValues(payload, (val, key) => this._normalize(null, val))
+        data = mapValues(payload, (val, key) => this._normalize(null, val))
       }
     }
     return data
