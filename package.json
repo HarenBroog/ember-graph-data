@@ -22,14 +22,13 @@
   },
   "dependencies": {
     "apollo-client": "^1.0.4",
-    "ember-fetch": "^3.3.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "ember-cli-babel": "^6.8.1",
+    "fetch": "^1.1.0",
     "extract-files": "^2.0.1",
     "graphql": "^0.9.1",
     "graphql-tag": "^1.2.4",
-    "graphql-tools": "^0.10.0",
-    "webpack": "^2.2.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "ember-cli-babel": "^6.8.1"
+    "webpack": "^2.2.1"
   },
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.5",

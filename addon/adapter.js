@@ -41,10 +41,13 @@ export default DS.RESTAdapter.extend({
     return networkInterface
   }),
 
-  mutate(opts, resultKey) {
+  mutate(opts) {
+    let mutation  = opts.mutation
+    let variables = opts.variables.getProperties(this._mutationVariables(mutation))
+
     return new RSVP.Promise((resolve, reject) => {
       this.get('apolloClient')
-        .mutate(opts)
+        .mutate({mutation, variables})
         .then(response => {
           let data = this.get('store')
             .serializerFor('application')
@@ -52,16 +55,14 @@ export default DS.RESTAdapter.extend({
           return resolve(data)
         })
         .catch(error => {
-          let errors;
+          let errors
           if (isPresent(error.networkError)) {
             error.networkError.code = 'network_error';
             errors = [error.networkError];
           } else if (isPresent(error.graphQLErrors)) {
             errors = error.graphQLErrors;
           }
-          if (errors) {
-            return reject({ errors });
-          }
+          if (errors) return reject({ errors })
           throw error;
         });
     })
@@ -78,5 +79,9 @@ export default DS.RESTAdapter.extend({
           return resolve(data)
         })
     })
+  },
+
+  _mutationVariables(mutation) {
+    return mutation.definitions[0].variableDefinitions.mapBy('variable.name.value')
   }
 })

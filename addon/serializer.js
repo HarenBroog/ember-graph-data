@@ -1,7 +1,7 @@
 import DS from 'ember-data';
 import Ember from 'ember';
 
-import mapValues from './utils/map-values'
+import {mapValues, isObject} from './utils'
 
 const {
   String: {
@@ -16,6 +16,7 @@ const {
 } = Ember
 
 
+
 export default DS.JSONSerializer.extend({
   isNewSerializerAPI: true,
   unwrapSingleResponseNode: true,
@@ -25,40 +26,42 @@ export default DS.JSONSerializer.extend({
   },
 
   normalize(modelClass, payload) {
-    let data = this._normalize(modelClass, payload)
+    let data = this._normalize(payload)
     if (!this.get('unwrapSingleResponseNode')) return data
     let keys = Object.keys(data)
     return keys.length == 1 ? data[keys[0]] : data
   },
 
-  _normalize(modelClass, payload) {
-    let store = this.get('store')
-    let data  = null
+  _normalize(payload) {
+    let modelClass = this.extractModelClass(payload)
+    if(isArray(payload))   return this._normalizeArray(payload)
+    if(modelClass)         return this._normalizeModel(payload, modelClass)
+    if(isObject(payload))  return this._normalizeObject(payload)
+    return payload
+  },
 
-    if (isArray(payload)) {
-      data = payload.map(item => this._normalize(null, item))
-    } else if(payload instanceof Object && Object.keys(payload).length > 0) {
-      let modelName  = this.extractType(payload)
-      modelClass = modelClass || this.extractModelClass(payload)
+  _normalizeArray(array) { return array.map(item => this._normalize(item)) },
 
-      if (modelName && modelClass)  {
-        let resourceHash = {
-          id:            this.extractId(modelClass, payload),
-          type:          modelName,
-          attributes:    this.extractAttributes(modelClass, payload),
-          relationships: this.extractRelationships(modelClass, payload)
-        };
+  _normalizeModel(payload, modelClass = null) {
+    modelClass = modelClass || this.extractModelClass(payload)
 
-        this.applyTransforms(modelClass, resourceHash.attributes);
-        data = store.push({data: resourceHash})
-      } else {
-        data = mapValues(payload, (val, key) => this._normalize(null, val))
-      }
+    let resourceHash = {
+      id:            this.extractId(modelClass, payload),
+      type:          modelClass.modelName,
+      attributes:    this.extractAttributes(modelClass, payload)
+      // relationships: this.extractRelationships(modelClass, payload)
     }
-    return data
+
+    this.applyTransforms(modelClass, resourceHash.attributes);
+    return this.get('store').push({data: resourceHash})
+  },
+
+  _normalizeObject(payload) {
+    return mapValues(payload, (val) => this._normalize(val))
   },
 
   extractType(resourceHash) {
+    if(!resourceHash) return null
     let type = resourceHash.__typename
     let mappedModelName = this.mapTypeToModelName(type) || type
     return mappedModelName ? underscore(mappedModelName) : null
@@ -77,23 +80,39 @@ export default DS.JSONSerializer.extend({
     }
   },
 
-  extractRelationships(modelClass, resourceHash) {
-    let relationships = {}
-    modelClass.eachRelationship((key, meta) => {
-      let data = resourceHash[key]
-      if (isNone(data)) return
+  extractAttributes(modelClass, resourceHash) {
+    let attributeKey
+    let attributes = {}
 
-      let normalized = this._normalize(null, data)
-      if(meta.kind === "hasMany") {
-        relationships[key] = {
-          data: normalized.map(item => ({ id: get(item, 'id'), type: meta.type }))
-        }
-      } else {
-        relationships[key] = {
-          data: { id: get(normalized, 'id'), type: meta.type }
-        }
+    modelClass.eachAttribute((key) => {
+      attributeKey = this.keyForAttribute(key, 'deserialize');
+      if (resourceHash.hasOwnProperty(attributeKey)) {
+        let val = resourceHash[attributeKey]
+
+        attributes[key] = this._normalize(val)
       }
     })
-    return relationships
+
+    return attributes
   },
+
+  // extractRelationships(modelClass, resourceHash) {
+  //   let relationships = {}
+  //   modelClass.eachRelationship((key, meta) => {
+  //     let data = resourceHash[key]
+  //     if (isNone(data)) return
+
+  //     let normalized = this._normalize(null, data)
+  //     if(meta.kind === "hasMany") {
+  //       relationships[key] = {
+  //         data: normalized.map(item => ({ id: get(item, 'id'), type: meta.type }))
+  //       }
+  //     } else {
+  //       relationships[key] = {
+  //         data: { id: get(normalized, 'id'), type: meta.type }
+  //       }
+  //     }
+  //   })
+  //   return relationships
+  // },
 });

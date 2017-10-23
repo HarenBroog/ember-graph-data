@@ -6,15 +6,15 @@ WIP
 
 ## Installation
 
-Ensure you have `ember-data` installed:
+Ensure you have `ember-data` and `ember-fetch` installed:
 
 ```bash
-ember install ember-data
+ember install ember-data ember-fetch
 ```
 
 And then:
 ```bash
-ember install ember-graph-data  
+ember install ember-graph-data
 ```
 ## Configuration
 ### minimal config
@@ -87,4 +87,4 @@ export default Ember.Route.extend({
     return this.store.query({query, variables})
   }
 })
-```  
+```

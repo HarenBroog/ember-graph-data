@@ -28,7 +28,6 @@ module.exports = {
       outputName: 'apollo-client',
       expose: [
         'graphql',
-        'graphql-tools',
         'graphql-tag',
         'apollo-client',
         'extract-files'
