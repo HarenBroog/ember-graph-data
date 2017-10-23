@@ -29,7 +29,7 @@ const {
 
 export default GraphAdapter.extend({
   host:       'http://localhost:4000', // your API host
-  namespace:  'api/v1/graphq',         //your API namespace
+  namespace:  'api/v1/graph',          //your API namespace
 })
 ```
 `app/serializers/application.js`

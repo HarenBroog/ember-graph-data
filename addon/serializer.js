@@ -48,8 +48,8 @@ export default DS.JSONSerializer.extend({
     let resourceHash = {
       id:            this.extractId(modelClass, payload),
       type:          modelClass.modelName,
-      attributes:    this.extractAttributes(modelClass, payload)
-      // relationships: this.extractRelationships(modelClass, payload)
+      attributes:    this.extractAttributes(modelClass, payload),
+      relationships: this.extractRelationships(modelClass, payload)
     }
 
     this.applyTransforms(modelClass, resourceHash.attributes);
@@ -85,7 +85,7 @@ export default DS.JSONSerializer.extend({
     let attributes = {}
 
     modelClass.eachAttribute((key) => {
-      attributeKey = this.keyForAttribute(key, 'deserialize');
+      attributeKey = this.keyForAttribute(key, 'deserialize')
       if (resourceHash.hasOwnProperty(attributeKey)) {
         let val = resourceHash[attributeKey]
 
@@ -96,23 +96,23 @@ export default DS.JSONSerializer.extend({
     return attributes
   },
 
-  // extractRelationships(modelClass, resourceHash) {
-  //   let relationships = {}
-  //   modelClass.eachRelationship((key, meta) => {
-  //     let data = resourceHash[key]
-  //     if (isNone(data)) return
+  extractRelationships(modelClass, resourceHash) {
+    let relationships = {}
+    modelClass.eachRelationship((key, meta) => {
+      let data = resourceHash[key]
+      if (isNone(data)) return
 
-  //     let normalized = this._normalize(null, data)
-  //     if(meta.kind === "hasMany") {
-  //       relationships[key] = {
-  //         data: normalized.map(item => ({ id: get(item, 'id'), type: meta.type }))
-  //       }
-  //     } else {
-  //       relationships[key] = {
-  //         data: { id: get(normalized, 'id'), type: meta.type }
-  //       }
-  //     }
-  //   })
-  //   return relationships
-  // },
+      let normalized = this._normalize(data)
+      if(meta.kind === "hasMany") {
+        relationships[key] = {
+          data: normalized.map(item => ({ id: get(item, 'id'), type: meta.type }))
+        }
+      } else {
+        relationships[key] = {
+          data: { id: get(normalized, 'id'), type: meta.type }
+        }
+      }
+    })
+    return relationships
+  },
 });
