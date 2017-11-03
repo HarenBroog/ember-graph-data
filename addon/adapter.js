@@ -54,17 +54,7 @@ export default DS.RESTAdapter.extend({
             .normalize(null, response.data)
           return resolve(data)
         })
-        .catch(error => {
-          let errors
-          if (isPresent(error.networkError)) {
-            error.networkError.code = 'network_error';
-            errors = [error.networkError];
-          } else if (isPresent(error.graphQLErrors)) {
-            errors = error.graphQLErrors;
-          }
-          if (errors) return reject({ errors })
-          throw error;
-        });
+        .catch(error => this.catchRequestError(error, reject))
     })
   },
 
@@ -78,7 +68,12 @@ export default DS.RESTAdapter.extend({
             .normalize(null, response.data)
           return resolve(data)
         })
+        .catch(error => this.catchRequestError(error, reject))
     })
+  },
+
+  catchRequestError(error) {
+    return error
   },
 
   _mutationVariables(mutation) {
