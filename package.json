@@ -1,11 +1,10 @@
 {
   "name": "ember-graph-data",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "GraphQL & ember-data integration for ambitious web apps.",
   "keywords": [
     "ember-addon",
-    "apollo-client",
-    "apollo",
+    "ember-data",
     "graphql"
   ],
   "license": "MIT",
@@ -21,14 +20,11 @@
     "test": "ember try:each"
   },
   "dependencies": {
-    "apollo-client": "^1.0.4",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "broccoli-webpack": "^1.0.0",
     "ember-cli-babel": "^6.8.1",
-    "fetch": "^1.1.0",
-    "extract-files": "^2.0.1",
-    "graphql": "^0.9.1",
-    "graphql-tag": "^1.2.4",
-    "webpack": "^2.2.1"
+    "ember-cli-node-assets": "^0.2.2",
+    "graphql-request": "^1.4.0",
+    "graphql-tag": "^1.2.4"
   },
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.5",

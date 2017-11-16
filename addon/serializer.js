@@ -1,35 +1,22 @@
-import DS from 'ember-data';
-import Ember from 'ember';
-
+import DS from 'ember-data'
 import {mapValues, isObject} from './utils'
-
-const {
-  String: {
-    camelize,
-    pluralize,
-    singularize,
-    underscore
-  },
-  isArray,
-  isNone,
-  get
-} = Ember
-
-
+import {isNone} from '@ember/utils'
+import {isArray} from '@ember/array'
+import {get} from '@ember/object'
+import {
+  camelize,
+  underscore
+} from '@ember/string'
 
 export default DS.JSONSerializer.extend({
   isNewSerializerAPI: true,
-  unwrapSingleResponseNode: true,
 
   normalizeCase(string) {
     return camelize(string);
   },
 
   normalize(modelClass, payload) {
-    let data = this._normalize(payload)
-    if (!this.get('unwrapSingleResponseNode')) return data
-    let keys = Object.keys(data)
-    return keys.length == 1 ? data[keys[0]] : data
+    return this._normalize(payload)
   },
 
   _normalize(payload) {

@@ -1,12 +1,12 @@
-import DS     from 'ember-data'
+import DS from 'ember-data'
 
 export function initialize() {
   DS.Store.reopen({
-    query() {
+    graphQuery() {
       return this.adapterFor('application').query(...arguments)
     },
 
-    mutate() {
+    graphMutate() {
       return this.adapterFor('application').mutate(...arguments)
     }
   })

@@ -6,5 +6,4 @@ export const mapValues = (object, fun) => {
   return result
 }
 
-
 export const isObject = val => val instanceof Object && Object.keys(val).length > 0

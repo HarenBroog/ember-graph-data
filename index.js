@@ -1,12 +1,44 @@
 /* eslint-env node */
-'use strict';
+'use strict'
+
+const Webpack = require('broccoli-webpack')
+const PackOpts = (name) => {
+  return {
+    entry: name,
+    output: {
+      filename: `${name}.js`,
+      library: name,
+      libraryTarget: 'umd'
+    }
+  }
+}
+
+const transformAMD = (name) => ({
+  using: [{ transformation: 'amd', as: name }]
+})
 
 module.exports = {
   name: 'ember-graph-data',
 
   options: {
-    babel: {
-      plugins: ['transform-object-rest-spread']
+    nodeAssets: {
+      'graphql-tag': {
+        vendor: {
+          include: ['index.js'],
+          processTree(input) {
+            return  new Webpack([input], PackOpts('graphql-tag'))
+          }
+        }
+      },
+      'graphql-request': {
+        vendor: {
+          srcDir:   'dist/src',
+          include: ['index.js'],
+          processTree(input) {
+            return  new Webpack([input], PackOpts('graphql-request'))
+          }
+        }
+      }
     }
   },
 
@@ -14,25 +46,10 @@ module.exports = {
     return true
   },
 
-  included() {
-    this._super.included.apply(this, arguments);
-
-    this.import('vendor/-apollo-client-bundle.js');
-    this.import('vendor/-apollo-client-shims.js');
-  },
-
-  treeForVendor() {
-    const WebpackDependencyPlugin = require('./lib/webpack-dependency-plugin');
-
-    return new WebpackDependencyPlugin({
-      outputName: 'apollo-client',
-      expose: [
-        'graphql',
-        'graphql-tag',
-        'apollo-client',
-        'extract-files'
-      ]
-    });
+  included(app) {
+    this._super.included.apply(this, arguments)
+    app.import('vendor/graphql-tag.js', transformAMD('graphql-tag'))
+    app.import('vendor/graphql-request.js', transformAMD('graphql-request'))
   },
 
   setupPreprocessorRegistry(type, registry) {
@@ -41,10 +58,10 @@ module.exports = {
         name: 'ember-graph-data',
         ext: 'graphql',
         toTree(tree) {
-          const GraphQLFilter = require('./lib/graphql-filter');
-          return new GraphQLFilter(tree);
+          const GraphQLFilter = require('./lib/graphql-filter')
+          return new GraphQLFilter(tree)
         }
-      });
+      })
     }
   }
-};
+}
