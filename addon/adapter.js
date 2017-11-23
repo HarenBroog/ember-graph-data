@@ -1,7 +1,7 @@
 import DS from 'ember-data'
-import { GraphQLClient} from 'graphql-request'
 import {computed} from '@ember/object'
-import {Promise} from 'rsvp'
+import {join} from '@ember/runloop'
+import Client from './client'
 
 export default DS.RESTAdapter.extend({
   mergedProperties: ['graphOptions'],
@@ -13,7 +13,7 @@ export default DS.RESTAdapter.extend({
 
   graphClient: computed('host', 'namespace', 'headers', function() {
     let headers = this.get('headers')
-    return new GraphQLClient(
+    return new Client(
       [this.get('host'), this.get('namespace')].join('/'),
       {headers}
     )
@@ -28,7 +28,7 @@ export default DS.RESTAdapter.extend({
       ).then(
         r => this.graphHelper('unwrapSingleNode', r)
       ).catch(
-        e => this.catchRequestError(e)
+        e => this.graphHelper('catchRequestError', e)
       )
   },
 
@@ -36,31 +36,15 @@ export default DS.RESTAdapter.extend({
     let query  = opts.mutation
     let variables = opts.variables.getProperties(this.graphHelper('mutationVariables', query))
 
-    return new Promise((resolve, reject) => {
-      this
-        .ajax({query, variables})
-        .then(response => {
-          let data = this.get('store')
-            .serializerFor('application')
-            .normalize(null, response)
-          return resolve(data)
-        })
-        .catch(error => this.catchRequestError(error, reject))
-    })
+    return this.ajax({query, variables})
+      .then(r => this.graphHelper('normalizeResponse', r))
+      .catch(e => this.graphHelper('catchRequestError', e))
   },
 
   query(opts) {
-    return new Promise((resolve, reject) => {
-      this
-        .ajax(opts)
-        .then(response => {
-          let data = this.get('store')
-            .serializerFor('application')
-            .normalize(null, response)
-          return resolve(data)
-        })
-        .catch(error => this.catchRequestError(error, reject))
-    })
+    return this.ajax(opts)
+      .then(r => this.graphHelper('normalizeResponse', r))
+      .catch(e => this.graphHelper('catchRequestError', e))
   },
 
   catchRequestError(error) {
@@ -85,6 +69,16 @@ export default DS.RESTAdapter.extend({
 
     mutationVariables(mutation) {
       return mutation.definitions[0].variableDefinitions.mapBy('variable.name.value')
+    },
+
+    normalizeResponse(response) {
+      return this
+        .get('store')
+        .serializerFor('application')
+        .normalize(null, response)
+    },
+    catchRequestError(error) {
+      return join(() => this.catchRequestError(error))
     }
   }
 })

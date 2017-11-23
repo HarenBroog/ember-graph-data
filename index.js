@@ -21,6 +21,9 @@ module.exports = {
   name: 'ember-graph-data',
 
   options: {
+    babel: {
+      plugins: ['transform-object-rest-spread']
+    },
     nodeAssets: {
       'graphql-tag': {
         vendor: {

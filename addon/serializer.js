@@ -7,12 +7,13 @@ import {
   camelize,
   underscore
 } from '@ember/string'
+import {join} from '@ember/runloop'
 
 export default DS.JSONSerializer.extend({
   isNewSerializerAPI: true,
 
   normalizeCase(string) {
-    return camelize(string);
+    return camelize(string)
   },
 
   normalize(modelClass, payload) {
@@ -20,11 +21,13 @@ export default DS.JSONSerializer.extend({
   },
 
   _normalize(payload) {
-    let modelClass = this.extractModelClass(payload)
-    if(isArray(payload))   return this._normalizeArray(payload)
-    if(modelClass)         return this._normalizeModel(payload, modelClass)
-    if(isObject(payload))  return this._normalizeObject(payload)
-    return payload
+    return join(() => {
+      let modelClass = this.extractModelClass(payload)
+      if(isArray(payload))   return this._normalizeArray(payload)
+      if(modelClass)         return this._normalizeModel(payload, modelClass)
+      if(isObject(payload))  return this._normalizeObject(payload)
+      return payload
+    })
   },
 
   _normalizeArray(array) { return array.map(item => this._normalize(item)) },
@@ -38,8 +41,7 @@ export default DS.JSONSerializer.extend({
       attributes:    this.extractAttributes(modelClass, payload),
       relationships: this.extractRelationships(modelClass, payload)
     }
-
-    this.applyTransforms(modelClass, resourceHash.attributes);
+    this.applyTransforms(modelClass, resourceHash.attributes)
     return this.get('store').push({data: resourceHash})
   },
 
@@ -90,6 +92,7 @@ export default DS.JSONSerializer.extend({
       if (isNone(data)) return
 
       let normalized = this._normalize(data)
+
       if(meta.kind === "hasMany") {
         relationships[key] = {
           data: normalized.map(item => ({ id: get(item, 'id'), type: meta.type }))
