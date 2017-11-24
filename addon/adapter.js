@@ -1,9 +1,7 @@
 import DS from 'ember-data'
-import {computed} from '@ember/object'
-import {join} from '@ember/runloop'
-import Client from './client'
+import adapterFetchMixin      from 'ember-fetch/mixins/adapter-fetch'
 
-export default DS.RESTAdapter.extend({
+export default DS.RESTAdapter.extend(adapterFetchMixin, {
   mergedProperties: ['graphOptions'],
 
   graphOptions: {
@@ -11,25 +9,20 @@ export default DS.RESTAdapter.extend({
     addTypename: true,
   },
 
-  graphClient: computed('host', 'namespace', 'headers', function() {
-    let headers = this.get('headers')
-    return new Client(
-      [this.get('host'), this.get('namespace')].join('/'),
-      {headers}
-    )
-  }),
-
   ajax({query, variables}) {
-    return this
-      .get('graphClient')
-      .request(
-        this.graphHelper('prepareQueryString', query.string),
-        variables
-      ).then(
-        r => this.graphHelper('unwrapSingleNode', r)
-      ).catch(
-        e => this.graphHelper('catchRequestError', e)
-      )
+    let body = JSON.stringify({
+      query: this.graphHelper('prepareQuery', query),
+      variables: variables ? variables : undefined,
+    })
+
+    return this._super(
+      [this.get('host'), this.get('namespace')].join('/'),
+      'POST',
+      {body}
+    )
+    .then(r => this.graphHelper('unwrapSingleNode', r.data))
+    .then(r => this.graphHelper('normalizeResponse', r))
+    .catch(e => this.catchRequestError(e))
   },
 
   mutate(opts) {
@@ -37,14 +30,10 @@ export default DS.RESTAdapter.extend({
     let variables = opts.variables.getProperties(this.graphHelper('mutationVariables', query))
 
     return this.ajax({query, variables})
-      .then(r => this.graphHelper('normalizeResponse', r))
-      .catch(e => this.graphHelper('catchRequestError', e))
   },
 
   query(opts) {
     return this.ajax(opts)
-      .then(r => this.graphHelper('normalizeResponse', r))
-      .catch(e => this.graphHelper('catchRequestError', e))
   },
 
   catchRequestError(error) {
@@ -56,7 +45,8 @@ export default DS.RESTAdapter.extend({
   },
 
   graphHelpers: {
-    prepareQueryString(queryString) {
+    prepareQuery(query) {
+      let queryString = query.string
       if(this.get('graphOptions.addTypename')) queryString = queryString.replace(/}/g, `  __typename\n}`)
       return queryString
     },
@@ -72,13 +62,7 @@ export default DS.RESTAdapter.extend({
     },
 
     normalizeResponse(response) {
-      return this
-        .get('store')
-        .serializerFor('application')
-        .normalize(null, response)
-    },
-    catchRequestError(error) {
-      return join(() => this.catchRequestError(error))
+      return this.get('store').serializerFor('application').normalize(null, response)
     }
   }
 })

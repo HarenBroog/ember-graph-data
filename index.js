@@ -21,24 +21,12 @@ module.exports = {
   name: 'ember-graph-data',
 
   options: {
-    babel: {
-      plugins: ['transform-object-rest-spread']
-    },
     nodeAssets: {
       'graphql-tag': {
         vendor: {
           include: ['index.js'],
           processTree(input) {
             return  new Webpack([input], PackOpts('graphql-tag'))
-          }
-        }
-      },
-      'graphql-request': {
-        vendor: {
-          srcDir:   'dist/src',
-          include: ['index.js'],
-          processTree(input) {
-            return  new Webpack([input], PackOpts('graphql-request'))
           }
         }
       }
@@ -52,7 +40,6 @@ module.exports = {
   included(app) {
     this._super.included.apply(this, arguments)
     app.import('vendor/graphql-tag.js', transformAMD('graphql-tag'))
-    app.import('vendor/graphql-request.js', transformAMD('graphql-request'))
   },
 
   setupPreprocessorRegistry(type, registry) {

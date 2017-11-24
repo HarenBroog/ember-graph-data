@@ -7,7 +7,6 @@ import {
   camelize,
   underscore
 } from '@ember/string'
-import {join} from '@ember/runloop'
 
 export default DS.JSONSerializer.extend({
   isNewSerializerAPI: true,
@@ -21,13 +20,11 @@ export default DS.JSONSerializer.extend({
   },
 
   _normalize(payload) {
-    return join(() => {
-      let modelClass = this.extractModelClass(payload)
-      if(isArray(payload))   return this._normalizeArray(payload)
-      if(modelClass)         return this._normalizeModel(payload, modelClass)
-      if(isObject(payload))  return this._normalizeObject(payload)
-      return payload
-    })
+    let modelClass = this.extractModelClass(payload)
+    if(isArray(payload))   return this._normalizeArray(payload)
+    if(modelClass)         return this._normalizeModel(payload, modelClass)
+    if(isObject(payload))  return this._normalizeObject(payload)
+    return payload
   },
 
   _normalizeArray(array) { return array.map(item => this._normalize(item)) },
