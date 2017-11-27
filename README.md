@@ -1,4 +1,4 @@
-![Download count all time](https://img.shields.io/npm/dt/ember-graph-data.svg) ![npm version](https://img.shields.io/npm/v/ember-graph-data.svg) ![Ember Observer Score](http://emberobserver.com/badges/ember-graph-data.svg)
+[![Download count all time](https://img.shields.io/npm/dt/ember-graph-data.svg)](https://www.npmjs.com/package/ember-graph-data) [![npm version](https://img.shields.io/npm/v/ember-graph-data.svg)](https://www.npmjs.com/package/ember-graph-data) [![Ember Observer Score](http://emberobserver.com/badges/ember-graph-data.svg)](http://emberobserver.com/addons/ember-graph-data)
 # ember-graph-data  
 
 GraphQL & EmberData integration for ambitious apps!
