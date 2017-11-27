@@ -1,6 +1,6 @@
 {
   "name": "ember-graph-data",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "GraphQL & ember-data integration for ambitious web apps.",
   "keywords": [
     "ember-addon",
@@ -55,7 +55,8 @@
   },
   "ember-addon": {
     "configPath": "tests/dummy/config",
-    "before": ["ember-cli-babel"]
-
+    "before": [
+      "ember-cli-babel"
+    ]
   }
 }
