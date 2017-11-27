@@ -33,10 +33,6 @@ module.exports = {
     }
   },
 
-  isDevelopingAddon: function() {
-    return true
-  },
-
   included(app) {
     this._super.included.apply(this, arguments)
     app.import('vendor/graphql-tag.js', transformAMD('graphql-tag'))

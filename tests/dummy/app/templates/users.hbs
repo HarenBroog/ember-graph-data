@@ -1,0 +1,15 @@
+{{input name='id'        value=id}}
+{{input name='email'     value=email}}
+{{input name='firstName' value=firstName}}
+
+<button {{action 'userCreate'}} class='add-user'>
+  Add new!
+</button>
+
+<ul>
+  {{#each model.users as |user|}}
+    <li>
+      {{user.firstName}}
+    </li>
+  {{/each}}
+</ul>

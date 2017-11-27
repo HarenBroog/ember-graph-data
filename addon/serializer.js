@@ -1,3 +1,7 @@
+import Ember from 'ember'
+const {
+  run
+} = Ember
 import DS from 'ember-data'
 import {mapValues, isObject} from './utils'
 import {isNone} from '@ember/utils'
@@ -15,8 +19,8 @@ export default DS.JSONSerializer.extend({
     return camelize(string)
   },
 
-  normalize(modelClass, payload) {
-    return this._normalize(payload)
+  normalize(payload) {
+    return run(() => this._normalize(payload))
   },
 
   _normalize(payload) {

@@ -1,0 +1,7 @@
+#import '../fragments/user-fragment'
+
+mutation userCreate($id: ID, $email: String!, $firstName: String!) {
+  userCreate(id: $id, email: $email, firstName: $firstName) {
+    ...UserFragment
+  }
+}

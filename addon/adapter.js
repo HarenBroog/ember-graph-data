@@ -1,42 +1,59 @@
-import DS from 'ember-data'
-import adapterFetchMixin      from 'ember-fetch/mixins/adapter-fetch'
+import DS                 from 'ember-data'
+import adapterFetchMixin  from 'ember-fetch/mixins/adapter-fetch'
+import {
+  get, getProperties
+} from '@ember/object'
+import {
+  isBlank
+} from '@ember/utils'
+import {
+  objectReject
+} from './utils'
 
 export default DS.RESTAdapter.extend(adapterFetchMixin, {
   mergedProperties: ['graphOptions'],
 
   graphOptions: {
-    unwrapSingleNode: true,
     addTypename: true,
   },
 
-  ajax({query, variables}) {
-    let body = JSON.stringify({
-      query: this.graphHelper('prepareQuery', query),
-      variables: variables ? variables : undefined,
-    })
+  request({query, variables}) {
+    let originalVariables = variables
+    query     = this.graphHelper('prepareQuery', query)
+    variables = this.graphHelper('normalizeVariables', originalVariables, query)
 
-    return this._super(
+    let data = {
+      variables,
+      query:          query.string,
+      operationName:  this.graphHelper('operationName', query)
+    }
+
+    return this.ajax(
       [this.get('host'), this.get('namespace')].join('/'),
       'POST',
-      {body}
+      {data}
     )
-    .then(r => this.graphHelper('unwrapSingleNode', r.data))
-    .then(r => this.graphHelper('normalizeResponse', r))
-    .catch(e => this.catchRequestError(e))
+    .then(r => this.graphHelper('normalizeResponse', r.data))
+    .then(r => this.handleGraphResponse(r, {query, variables, originalVariables}))
+    .catch(e => this.handleGraphError(e, {query, variables, originalVariables}))
   },
 
   mutate(opts) {
     let query  = opts.mutation
-    let variables = opts.variables.getProperties(this.graphHelper('mutationVariables', query))
+    let variables = opts.variables
 
-    return this.ajax({query, variables})
+    return this.request({query, variables})
   },
 
   query(opts) {
-    return this.ajax(opts)
+    return this.request(opts)
   },
 
-  catchRequestError(error) {
+  handleGraphResponse(response) {
+    return response
+  },
+
+  handleGraphError(error) {
     return error
   },
 
@@ -45,24 +62,36 @@ export default DS.RESTAdapter.extend(adapterFetchMixin, {
   },
 
   graphHelpers: {
+    operationName(query) {
+      return query.definitions[0].name.value
+    },
+
     prepareQuery(query) {
-      let queryString = query.string
-      if(this.get('graphOptions.addTypename')) queryString = queryString.replace(/}/g, `  __typename\n}`)
-      return queryString
+      if(this.get('graphOptions.addTypename')) query.string = query.string.replace(/}/g, `  __typename\n}`)
+      return query
     },
 
-    unwrapSingleNode(response) {
-      if (!this.get('graphOptions.unwrapSingleNode')) return response
-      let keys = Object.keys(response).filter(k => k != '__typename')
-      return keys.length == 1 ? response[keys[0]] : response
+    allowedVariables(query) {
+      return query
+        .definitions
+        .map(
+          def => (def.variableDefinitions || []).map(x => get(x, 'variable.name.value'))
+        )
+        .reduce((vars, acc) => acc.concat(vars), [])
     },
 
-    mutationVariables(mutation) {
-      return mutation.definitions[0].variableDefinitions.mapBy('variable.name.value')
+    normalizeVariables(variables, query) {
+      if(!variables) return {}
+      let allowedVariables = this.graphHelper('allowedVariables', query)
+
+      return objectReject(
+        getProperties(variables, allowedVariables),
+        isBlank
+      )
     },
 
     normalizeResponse(response) {
-      return this.get('store').serializerFor('application').normalize(null, response)
+      return this.get('store').serializerFor('application').normalize(response)
     }
   }
 })

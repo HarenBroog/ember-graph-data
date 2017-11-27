@@ -31,8 +31,66 @@ import GraphSerializer from 'ember-graph-data/serializer'
 
 export default GraphSerializer.extend()
 ```
+You can configure behaviour of graph adapter. Below options are defaults.
 
-### automatic model lookup
+### headers support
+`app/adapters/application.js`
+```js
+import GraphAdapter from 'ember-graph-data/adapter'
+import {computed} from '@ember/object'
+import {inject as service} from '@ember/service'
+
+export default GraphAdapter.extend({
+  session: service(),
+  headers: computed('session.jwt', function() {
+    return {
+      // authorize reuests
+      'Authorization': `Bearer ${this.get('session.jwt')}`,
+      // maybe provide localized output?
+      'Content-Language': 'pl'
+      // etc
+    }
+  })
+})
+```
+
+### handle error & handle response
+`app/adapters/application.js`
+```js
+import GraphAdapter from 'ember-graph-data/adapter'
+import {inject as service} from '@ember/service'
+
+export default GraphAdapter.extend({
+  eventBus: service(),
+
+  handleGraphError(error, {query, variables}) {
+    let errors = error.response.errors || []
+    if (errors.every((err) => err.code !== 'unauthorized')) return error
+    // example only. Do whatever you want :)
+    this.get('eventBus').dispatch({type: 'UNAUTHORIZED'})
+  }
+
+  // Hook after successful request
+  handleGraphResponse(response, {query, variables}) {
+    return response
+  },
+}
+```
+
+### additional config
+`app/adapters/application.js`
+```js
+import GraphAdapter from 'ember-graph-data/adapter'
+export default GraphAdapter.extend({
+  graphOptions: {
+    /* appends __typename field to every object in query.
+       This is used for model lookup.
+    */
+    addTypename: true,
+  },
+})
+```
+## automatic model lookup
 
 `GraphSerializer` automatically lookups and instantiates models for you. This process relies on `__typename` field which is returned from GraphQL server in every object. Lets make some assumptions:
 
@@ -94,77 +152,6 @@ query users {
 
 In result of above actions, you will get an array of User models. You can also inspect those models in a `Data` tab of Ember inspector. Moreover, each User will have association `role` properly set. Simple, yet powerful.
 
-### headers support
-
-`app/adapters/application.js`
-```js
-import GraphAdapter from 'ember-graph-data/adapter'
-import {computed} from '@ember/object'
-import {inject as service} from '@ember/service'
-
-export default GraphAdapter.extend({
-  session: service(),
-  headers: computed('session.jwt', function() {
-    return {
-      // authorize reuests
-      'Authorization': `Bearer ${this.get('session.jwt')}`,
-      // maybe provide localized output?
-      'Content-Language': 'pl'
-      // etc
-    }
-  })
-})
-```
-
-### graph config
-
-You can configure behaviour of graph adapter. Below options are defaults.
-
-`app/adapters/application.js`
-```js
-import GraphAdapter from 'ember-graph-data/adapter'
-export default GraphAdapter.extend({
-  graphOptions: {
-    /* if query returns single node returns unwraped value.
-      e.g. :
-      query users {
-        users {
-          id
-          email
-        }
-      }
-      With this flag set to true, above query will return:
-        [{id: 1, email: 'test@email.com'}, ...]
-      instead of:
-        { users: [{id: 1, email: 'test@email.com'}, ...] }
-    */
-    unwrapSingleNode: true,
-    /* appends __typename field to every object in query.
-       This is used for model lookup.
-    */
-    addTypename: true,
-  },
-})
-```
-
-### error handling
-
-`app/adapters/application.js`
-```js
-import GraphAdapter from 'ember-graph-data/adapter'
-import {inject as service} from '@ember/service'
-
-export default GraphAdapter.extend({
-  eventBus: service(),
-
-  catchRequestError(error) {
-    let errors = error.response.errors || []
-    if (errors.every((err) => err.code !== 'unauthorized')) return error
-    // example only. Do whatever you want :)
-    this.get('eventBus').dispatch({type: 'UNAUTHORIZED'})
-  }
-}
-```
 
 ## Usage
 
@@ -174,7 +161,7 @@ import Route    from '@ember/routing/route'
 import query    from 'my-app/gql/queries/posts'
 import mutation from 'my-app/gql/queries/posts'
 
-export default Ember.Route.extend({
+export default Route.extend({
   model(params) {
     let variables = { page: 1 }
     return this.store.graphQuery({query, variables})
