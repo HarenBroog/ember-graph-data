@@ -14,8 +14,8 @@ And then:
 ```bash
 ember install ember-graph-data
 ```
-## Configuration
-### minimal config
+## Minimal setup
+
 `app/adapters/application.js`
 ```js
 import GraphAdapter from 'ember-graph-data/adapter'
@@ -31,8 +31,8 @@ import GraphSerializer from 'ember-graph-data/serializer'
 
 export default GraphSerializer.extend()
 ```
-You can configure behaviour of graph adapter. Below options are defaults.
 
+## Adapter
 ### headers support
 `app/adapters/application.js`
 ```js
@@ -78,6 +78,7 @@ export default GraphAdapter.extend({
 ```
 
 ### additional config
+You can configure behaviour of graph adapter. Below options are defaults.
 `app/adapters/application.js`
 ```js
 import GraphAdapter from 'ember-graph-data/adapter'
@@ -90,7 +91,46 @@ export default GraphAdapter.extend({
   },
 })
 ```
-## automatic model lookup
+## Serializer
+### custom modelName mapping
+In case when `__typename` field from API does not directly reflect your DS model names, you can customize it in `modelNameFromGraphResponse`:
+`app/serializers/application.js`
+```js
+import GraphSerializer from 'ember-graph-data/serializer'
+
+export default GraphSerializer.extend({
+  modelNameFromGraphResponse(response) {
+    return response.__typename
+  }
+}
+```
+
+### custom modelName namespace separator
+Proper handling namespaced DS models requires `__typename` to contain namespace separator. For instance, model `user/blog-post` will be looked-up correctly, for following `__typename` values:
+
+* `user--blog-post`
+* `User--BlogPost`
+* `user--Blog-Post`
+* `User--blogPost`
+* `User--blog_Post`
+* `user/blog-post`
+* `user/blog_post`
+* `User/BlogPost`
+
+It is not adviced to apply such incoherency in a naming convetion, but still it will be handled. `ember-graph-data` accepts `--` and `/` defaultly as a namespace separator. You can adjust that to your needs like this:
+
+`app/serializers/application.js`
+```js
+import GraphSerializer from 'ember-graph-data/serializer'
+
+export default GraphSerializer.extend({
+  modelNameNamespaceSeparator: '$$$'
+}
+```
+
+And from now, `user$$$blog-post` and other variations will be recognized correctly.
+
+## Automatic model lookup
 
 `GraphSerializer` automatically lookups and instantiates models for you. This process relies on `__typename` field which is returned from GraphQL server in every object. Lets make some assumptions:
 

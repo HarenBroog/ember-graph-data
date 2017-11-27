@@ -6,7 +6,6 @@ const {
 } = DS
 
 export default Model.extend({
-  email:      attr(),
-  firstName:  attr(),
-  isAdmin:    true
+  title:   attr(),
+  body:    attr()
 })

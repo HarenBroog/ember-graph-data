@@ -24,8 +24,8 @@ export default DS.JSONSerializer.extend({
   },
 
   _normalize(payload) {
-    let modelClass = this.extractModelClass(payload)
     if(isArray(payload))   return this._normalizeArray(payload)
+    let modelClass         = this.extractModelClass(payload)
     if(modelClass)         return this._normalizeModel(payload, modelClass)
     if(isObject(payload))  return this._normalizeObject(payload)
     return payload
@@ -50,24 +50,26 @@ export default DS.JSONSerializer.extend({
     return mapValues(payload, (val) => this._normalize(val))
   },
 
-  extractType(resourceHash) {
-    if(!resourceHash) return null
-    let type = resourceHash.__typename
-    let mappedModelName = this.mapTypeToModelName(type) || type
-    return mappedModelName ? underscore(mappedModelName) : null
+  modelNameNamespaceSeparator: '--',
+  modelNameFromGraphResponse(response) {
+    return response.__typename
   },
 
-  mapTypeToModelName(type) {
-    return type
-  },
-
-  extractModelClass(resourceHash) {
-    let type = this.extractType(resourceHash)
+  lookupModelClass(name) {
     try {
-      return type ? this.get('store').modelFor(type) : null
+      return name ? this.get('store').modelFor(name) : null
     } catch(e) {
       return null
     }
+  },
+
+  extractModelClass(resourceHash) {
+    if(!resourceHash)
+      return null
+    let type = this.modelNameFromGraphResponse(resourceHash)
+    if(type)
+      type  = underscore(type.replace(this.get('modelNameNamespaceSeparator'), '/'))
+    return this.lookupModelClass(type)
   },
 
   extractAttributes(modelClass, resourceHash) {
