@@ -7,9 +7,17 @@ node_js:
 sudo: false
 
 cache:
-  directories:
-    - $HOME/.npm
-    - $HOME/.cache # includes bowers cache
+  yarn: true
+
+sudo: required
+dist: trusty
+
+addons:
+  apt:
+    sources:
+    - google-chrome
+    packages:
+    - google-chrome-stable
 
 env:
   # we recommend testing LTS's and latest stable release (bonus points to beta/canary)
@@ -25,14 +33,13 @@ matrix:
     - env: EMBER_TRY_SCENARIO=ember-canary
 
 before_install:
-  - npm config set spin false
-  - npm install -g bower phantomjs-prebuilt
-  - bower --version
-  - phantomjs --version
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - yarn install
+  - export PATH=$HOME/.yarn/bin:$PATH
 
 install:
-  - npm install
-  - bower install
+  - yarn install --no-lockfile --non-interactive
 
 script:
   # Usually, it's ok to finish the test scenario without reverting
