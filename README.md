@@ -1,4 +1,4 @@
-[![Download count all time](https://img.shields.io/npm/dt/ember-graph-data.svg)](https://www.npmjs.com/package/ember-graph-data) [![npm version](https://img.shields.io/npm/v/ember-graph-data.svg)](https://www.npmjs.com/package/ember-graph-data) [![Ember Observer Score](http://emberobserver.com/badges/ember-graph-data.svg)](http://emberobserver.com/addons/ember-graph-data)
+[![npm](https://img.shields.io/npm/dt/ember-graph-data.svg)](https://www.npmjs.com/package/ember-graph-data) [![npm version](https://img.shields.io/npm/v/ember-graph-data.svg)](https://www.npmjs.com/package/ember-graph-data) [![Ember Observer Score](http://emberobserver.com/badges/ember-graph-data.svg)](http://emberobserver.com/addons/ember-graph-data) [![Travis](https://img.shields.io/travis/HarenBroog/ember-graph-data.svg)](https://travis-ci.org/HarenBroog/ember-graph-data) [![Code Climate](https://img.shields.io/codeclimate/maintainability/HarenBroog/ember-graph-data.svg)](https://codeclimate.com/github/HarenBroog/ember-graph-data)
 # ember-graph-data  
 
 GraphQL & EmberData integration for ambitious apps!
