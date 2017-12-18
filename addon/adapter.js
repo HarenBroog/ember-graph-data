@@ -1,14 +1,21 @@
 import DS                 from 'ember-data'
 import adapterFetchMixin  from 'ember-fetch/mixins/adapter-fetch'
+
 import {
   get, getProperties
 } from '@ember/object'
+
 import {
   isBlank
 } from '@ember/utils'
+
 import {
   objectReject
 } from './utils'
+
+import {
+  assign
+} from '@ember/polyfills'
 
 export default DS.RESTAdapter.extend(adapterFetchMixin, {
   mergedProperties: ['graphOptions'],
@@ -17,7 +24,8 @@ export default DS.RESTAdapter.extend(adapterFetchMixin, {
     addTypename: true,
   },
 
-  request({query, variables}) {
+  request(opts) {
+    let {query, variables} = opts
     let originalVariables = variables
     query     = this.graphHelper('prepareQuery', query)
     variables = this.graphHelper('normalizeVariables', originalVariables, query)
@@ -28,14 +36,20 @@ export default DS.RESTAdapter.extend(adapterFetchMixin, {
       operationName:  this.graphHelper('operationName', query)
     }
 
+    let mergedOpts = assign(
+      {},
+      opts,
+      {variables, originalVariables}
+    )
+
     return this.ajax(
       [this.get('host'), this.get('namespace')].join('/'),
       'POST',
       {data}
     )
     .then(r => this.graphHelper('normalizeResponse', r.data))
-    .then(r => this.handleGraphResponse(r, {query, variables, originalVariables}))
-    .catch(e => this.handleGraphError(e, {query, variables, originalVariables}))
+    .then(r => this.handleGraphResponse(r, mergedOpts))
+    .catch(e => this.handleGraphError(e, mergedOpts))
   },
 
   mutate(opts) {
@@ -83,7 +97,7 @@ export default DS.RESTAdapter.extend(adapterFetchMixin, {
     normalizeVariables(variables, query) {
       if(!variables) return {}
       let allowedVariables = this.graphHelper('allowedVariables', query)
-
+      
       return objectReject(
         getProperties(variables, allowedVariables),
         isBlank
