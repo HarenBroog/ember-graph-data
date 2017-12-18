@@ -1,6 +1,6 @@
 {
   "name": "ember-graph-data",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "GraphQL & ember-data integration for ambitious web apps.",
   "keywords": [
     "ember-addon",
