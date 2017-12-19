@@ -1,5 +1,6 @@
 import DS                 from 'ember-data'
 import adapterFetchMixin  from 'ember-fetch/mixins/adapter-fetch'
+import {extractFiles}     from 'extract-files'
 
 import {
   get, getProperties
@@ -16,6 +17,8 @@ import {
 import {
   assign
 } from '@ember/polyfills'
+
+import Transport from './transport'
 
 export default DS.RESTAdapter.extend(adapterFetchMixin, {
   mergedProperties: ['graphOptions'],
@@ -45,18 +48,35 @@ export default DS.RESTAdapter.extend(adapterFetchMixin, {
     return this.ajax(
       [this.get('host'), this.get('namespace')].join('/'),
       'POST',
-      {data}
+      this.requestParams(data, mergedOpts)
     )
     .then(r => this.graphHelper('normalizeResponse', r.data))
     .then(r => this.handleGraphResponse(r, mergedOpts))
     .catch(e => this.handleGraphError(e, mergedOpts))
   },
 
+  ajaxOptions(url, method, options) {
+    let opts = this._super(...arguments)
+    if(options.body && options.body.constructor.name == 'FormData')
+      delete opts.headers['Content-Type']
+    return opts
+  },
+
+  requestParams(data, opts) {
+    let transportType = 'json'
+    try {
+      transportType = opts.options.transport
+    } catch(e) {}
+    return Transport[transportType](...arguments)
+  },
+
   mutate(opts) {
     let query  = opts.mutation
     let variables = opts.variables
 
-    return this.request({query, variables})
+    return this.request(
+      assign({}, opts, {query, variables})
+    )
   },
 
   query(opts) {
