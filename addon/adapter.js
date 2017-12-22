@@ -50,7 +50,7 @@ export default DS.RESTAdapter.extend(adapterFetchMixin, {
       'POST',
       this.requestParams(data, mergedOpts)
     )
-    .then(r => this.graphHelper('normalizeResponse', r.data))
+    .then(r => this.graphHelper('normalizeResponse', r))
     .then(r => this.handleGraphResponse(r, mergedOpts))
     .catch(e => this.handleGraphError(e, mergedOpts))
   },
@@ -125,7 +125,11 @@ export default DS.RESTAdapter.extend(adapterFetchMixin, {
     },
 
     normalizeResponse(response) {
-      return this.get('store').serializerFor('application').normalize(response)
+      if(response.errors) {
+        throw new DS.AdapterError(response.errors)
+      } else {
+        return this.get('store').serializerFor('application').normalize(response.data)
+      }
     }
   }
 })
