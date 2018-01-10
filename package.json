@@ -21,8 +21,10 @@
   },
   "dependencies": {
     "broccoli-webpack": "^1.0.0",
-    "graphql-tag": "^1.2.4",
-    "ember-fetch": "^3.4.3"    
+    "ember-cli-babel": "^6.3.0",
+    "ember-cli-node-assets": "^0.2.2",
+    "ember-fetch": "^3.4.3",
+    "graphql-tag": "^1.2.4"
   },
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.5",
@@ -46,9 +48,7 @@
     "ember-load-initializers": "^1.0.0",
     "ember-resolver": "^4.0.0",
     "ember-source": "~2.15.0",
-    "loader.js": "^4.2.3",
-    "ember-cli-babel": "^6.3.0",
-    "ember-cli-node-assets": "^0.2.2"
+    "loader.js": "^4.2.3"
   },
   "engines": {
     "node": "^4.5 || 6.* || >= 7.*"
