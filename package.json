@@ -21,8 +21,6 @@
   },
   "dependencies": {
     "broccoli-webpack": "^1.0.0",
-    "ember-cli-babel": "^6.3.0",
-    "ember-cli-node-assets": "^0.2.2",
     "graphql-tag": "^1.2.4"
   },
   "devDependencies": {
@@ -48,6 +46,8 @@
     "ember-resolver": "^4.0.0",
     "ember-source": "~2.15.0",
     "loader.js": "^4.2.3",
+    "ember-cli-babel": "^6.3.0",
+    "ember-cli-node-assets": "^0.2.2",
     "ember-fetch": "^3.4.3"
   },
   "engines": {
