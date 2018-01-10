@@ -44,11 +44,16 @@ export default DS.RESTAdapter.extend({
     return this.ajax(
       [this.get('host'), this.get('namespace')].join('/'),
       'POST',
-      {data}
+      {data, query}
     )
     .then(r => this.graphHelper('normalizeResponse', r))
     .then(r => this.handleGraphResponse(r, mergedOpts))
     .catch(e => this.handleGraphError(e, mergedOpts))
+  },
+
+  //ember-cached-shoe-override
+  paramsToTokenize(url, type, options) {
+    return [url, type, {data: options.query.definitions}]
   },
 
   mutate(opts) {
