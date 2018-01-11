@@ -54,7 +54,10 @@ export default DS.RESTAdapter.extend({
 
   //ember-cached-shoe-override
   paramsToTokenize(url, type, options, query) {
-    return [url, type, { data: query.definitions }]
+    return [url, type, {data: {
+      variables: options.data.variables,
+      definitions: query.definitions}
+    }]
   },
 
   mutate(opts) {
