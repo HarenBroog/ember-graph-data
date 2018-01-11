@@ -1,5 +1,4 @@
 import DS                 from 'ember-data'
-import adapterFetchMixin  from 'ember-fetch/mixins/adapter-fetch'
 
 import {
   get, getProperties
@@ -17,7 +16,7 @@ import {
   assign
 } from '@ember/polyfills'
 
-export default DS.RESTAdapter.extend(adapterFetchMixin, {
+export default DS.RESTAdapter.extend({
   mergedProperties: ['graphOptions'],
 
   graphOptions: {
@@ -45,11 +44,20 @@ export default DS.RESTAdapter.extend(adapterFetchMixin, {
     return this.ajax(
       [this.get('host'), this.get('namespace')].join('/'),
       'POST',
-      {data}
+      {data},
+      query
     )
     .then(r => this.graphHelper('normalizeResponse', r))
     .then(r => this.handleGraphResponse(r, mergedOpts))
     .catch(e => this.handleGraphError(e, mergedOpts))
+  },
+
+  //ember-cached-shoe-override
+  paramsToTokenize(url, type, options, query) {
+    return [url, type, {data: {
+      variables: options.data.variables,
+      definitions: query.definitions}
+    }]
   },
 
   mutate(opts) {
