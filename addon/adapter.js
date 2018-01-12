@@ -1,5 +1,4 @@
 import DS                 from 'ember-data'
-import adapterFetchMixin  from 'ember-fetch/mixins/adapter-fetch'
 
 import {
   get, getProperties
@@ -17,7 +16,7 @@ import {
   assign
 } from '@ember/polyfills'
 
-export default DS.RESTAdapter.extend(adapterFetchMixin, {
+export default DS.RESTAdapter.extend({
   mergedProperties: ['graphOptions'],
 
   graphOptions: {
