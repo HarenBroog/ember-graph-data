@@ -83,8 +83,9 @@ export default DS.RESTAdapter.extend(adapterFetchMixin, {
     },
 
     prepareQuery(query) {
-      if(this.get('graphOptions.addTypename')) query.string = query.string.replace(/}/g, `  __typename\n}`)
-      return query
+      let preparedQuery = assign({}, query)
+      if(this.get('graphOptions.addTypename')) preparedQuery.string = preparedQuery.string.replace(/}/g, `  __typename\n}`)
+      return preparedQuery
     },
 
     allowedVariables(query) {
