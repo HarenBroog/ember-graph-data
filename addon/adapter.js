@@ -1,5 +1,4 @@
 import DS                 from 'ember-data'
-import {extractFiles}     from 'extract-files'
 
 import {
   get, getProperties
@@ -29,14 +28,17 @@ export default DS.RESTAdapter.extend({
   request(opts) {
     let {query, variables} = opts
     let originalVariables = variables
+    let operationName = this.graphHelper('operationName', query)
+    
     query     = this.graphHelper('prepareQuery', query)
     variables = this.graphHelper('normalizeVariables', originalVariables, query)
 
     let data = {
       variables,
       query:          query.string,
-      operationName:  this.graphHelper('operationName', query)
     }
+    if(operationName)
+      data.operationName = operationName
 
     let mergedOpts = assign(
       {},
@@ -62,10 +64,12 @@ export default DS.RESTAdapter.extend({
   },
 
   requestParams(data, opts) {
-    let transportType = 'json'
+    let transportType = null
     try {
       transportType = opts.options.transport
-    } catch(e) {}
+    } catch(e) {
+      transportType = 'json'
+    }
     return Transport[transportType](...arguments)
   },
 
@@ -96,7 +100,11 @@ export default DS.RESTAdapter.extend({
 
   graphHelpers: {
     operationName(query) {
-      return query.definitions[0].name.value
+      try {
+        return query.definitions[0].name.value
+      } catch(e) {
+        return null
+      }
     },
 
     prepareQuery(query) {
