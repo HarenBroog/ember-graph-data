@@ -1,10 +1,11 @@
 import {extractFiles} from 'extract-files'
 
-export const transportJson = function(params, opts) {
+
+export const transportJson = function(params) {
   return {data: params}
 }
 
-export const transportMultipart = function(params, opts) {
+export const transportMultipart = function(params) {
   if (typeof FormData === 'undefined')
     return transportJson(...arguments)
   let variables = params.variables
@@ -12,8 +13,9 @@ export const transportMultipart = function(params, opts) {
   let formData = new FormData()
   
   formData.append('query', params.query)
-  formData.append('operationName', params.operationName)
-  files.forEach(({ path, file }, i) => {
+  if(params.operationName)
+    formData.append('operationName', params.operationName)
+  files.forEach(({ path, file }) => {
     let fullPath = `variables.${path}`
     formData.append(fullPath, file)
     variables[path] = fullPath
