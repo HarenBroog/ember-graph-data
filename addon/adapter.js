@@ -1,5 +1,4 @@
 import DS                 from 'ember-data'
-import adapterFetchMixin  from 'ember-fetch/mixins/adapter-fetch'
 import {extractFiles}     from 'extract-files'
 
 import {
@@ -20,7 +19,7 @@ import {
 
 import Transport from './transport'
 
-export default DS.RESTAdapter.extend(adapterFetchMixin, {
+export default DS.RESTAdapter.extend({
   mergedProperties: ['graphOptions'],
 
   graphOptions: {
@@ -101,8 +100,9 @@ export default DS.RESTAdapter.extend(adapterFetchMixin, {
     },
 
     prepareQuery(query) {
-      if(this.get('graphOptions.addTypename')) query.string = query.string.replace(/}/g, `  __typename\n}`)
-      return query
+      let preparedQuery = assign({}, query)
+      if(this.get('graphOptions.addTypename')) preparedQuery.string = preparedQuery.string.replace(/}/g, `  __typename\n}`)
+      return preparedQuery
     },
 
     allowedVariables(query) {
