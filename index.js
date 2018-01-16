@@ -22,15 +22,6 @@ module.exports = {
 
   options: {
     nodeAssets: {
-      'extract-files': {
-        vendor: {
-          include: ['dist/extract-files.js'],
-          processTree(input) {
-            return  new Webpack([input], PackOpts('extract-files', './extract-files/dist/extract-files.js'))
-          }
-        }
-      },
-      
       'graphql-tag': {
         vendor: {
           include: ['index.js'],
@@ -44,7 +35,6 @@ module.exports = {
 
   included(app) {
     this._super.included.apply(this, arguments)
-    app.import('vendor/extract-files.js', transformAMD('extract-files'))
     app.import('vendor/graphql-tag.js', transformAMD('graphql-tag'))
   },
 

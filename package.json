@@ -23,7 +23,6 @@
     "broccoli-webpack": "^1.0.0",
     "ember-cli-babel": "^6.3.0",
     "ember-cli-node-assets": "^0.2.2",
-    "extract-files": "^2.0.1",
     "graphql-tag": "^1.2.4"
   },
   "devDependencies": {

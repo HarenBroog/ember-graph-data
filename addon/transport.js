@@ -1,5 +1,4 @@
-import {extractFiles} from 'extract-files'
-
+import {extractFiles} from './utils'
 
 export const transportJson = function(params) {
   return {data: params}
@@ -21,7 +20,6 @@ export const transportMultipart = function(params) {
     variables[path] = fullPath
   })
   formData.append('variables', JSON.stringify(variables))
-
   return {body: formData}
 }
 
