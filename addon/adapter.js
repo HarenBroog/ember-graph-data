@@ -56,10 +56,15 @@ export default DS.RESTAdapter.extend({
     .catch(e => this.handleGraphError(e, mergedOpts))
   },
 
-  ajaxOptions(url, method, options) {
+  ajaxOptions() {
     let opts = this._super(...arguments)
-    if(options.body && options.body.constructor.name == 'FormData')
-      delete opts.headers['Content-Type']
+
+    if(opts.body && opts.body instanceof FormData) {
+      opts.processData = false
+      opts.contentType = false
+      opts.data = opts.body
+    }
+
     return opts
   },
 
