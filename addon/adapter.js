@@ -16,9 +16,14 @@ import {
   assign
 } from '@ember/polyfills'
 
+import {
+  inject as service
+} from '@ember/service'
+
 import Transport from './transport'
 
 export default DS.RESTAdapter.extend({
+  cachedShoe:       service(),
   mergedProperties: ['graphOptions'],
 
   graphOptions: {
@@ -101,6 +106,32 @@ export default DS.RESTAdapter.extend({
 
   graphHelper(name, ...args) {
     return this.graphHelpers[name].call(this, ...args)
+  },
+
+  tokenizeAjaxRequest(url, type, options = {}) {
+    let content = {}
+    let maybeFormData = (options.body || options.data)
+    let separator = this.get('separator')
+    let b2a = this.get('cachedShoe.b2a')
+
+    if(typeof FormData !== 'undefined' && maybeFormData instanceof FormData) {
+      for (let [k, v] of maybeFormData.entries()) {
+        content[k] = v
+      }
+      content.variables = JSON.parse(content.variables)
+    } else {
+      content = maybeFormData
+    }
+
+    let stringifyObject = (o) => JSON.stringify(o, Object.keys(o).sort())
+    let tokenizeString = (s) => b2a.btoa(s.replace(/\\r\\n/g, '\\n').replace(/\s\s+/g, ' '))
+    
+    return tokenizeString(
+      [url, type, stringifyObject(content)].join(separator)
+    )
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/\=+$/, '')
   },
 
   graphHelpers: {
