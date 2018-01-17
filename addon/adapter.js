@@ -1,7 +1,7 @@
 import DS                 from 'ember-data'
 
 import {
-  get, getProperties
+  get, getProperties, computed
 } from '@ember/object'
 
 import {
@@ -16,15 +16,18 @@ import {
   assign
 } from '@ember/polyfills'
 
-import {
-  inject as service
-} from '@ember/service'
+import { 
+  getOwner 
+} from '@ember/application'
 
 import Transport from './transport'
 
 export default DS.RESTAdapter.extend({
-  cachedShoe:       service(),
   mergedProperties: ['graphOptions'],
+  
+  cachedShoe: computed(function() {
+    return getOwner(this).lookup('service:cached-shoe')
+  }),
 
   graphOptions: {
     addTypename: true,
