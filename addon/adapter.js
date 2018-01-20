@@ -134,7 +134,7 @@ export default DS.RESTAdapter.extend({
     )
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
-    .replace(/\=+$/, '')
+    .replace(/=+$/, '')
   },
 
   graphHelpers: {
