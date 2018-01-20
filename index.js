@@ -2,7 +2,8 @@
 'use strict'
 
 const Webpack = require('broccoli-webpack')
-const PackOpts = (name, entry = name) => {
+const PackOpts = (name, entry) => {
+  entry = entry || name
   return {
     entry: entry,
     output: {
