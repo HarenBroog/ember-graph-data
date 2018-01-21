@@ -1,7 +1,25 @@
 [![npm](https://img.shields.io/npm/dt/ember-graph-data.svg)](https://www.npmjs.com/package/ember-graph-data) [![npm version](https://img.shields.io/npm/v/ember-graph-data.svg)](https://www.npmjs.com/package/ember-graph-data) [![Ember Observer Score](http://emberobserver.com/badges/ember-graph-data.svg)](http://emberobserver.com/addons/ember-graph-data) [![Travis](https://img.shields.io/travis/HarenBroog/ember-graph-data/master.svg)](https://travis-ci.org/HarenBroog/ember-graph-data) [![Code Climate](https://img.shields.io/codeclimate/maintainability/HarenBroog/ember-graph-data.svg)](https://codeclimate.com/github/HarenBroog/ember-graph-data)
+
 # ember-graph-data  
 
 GraphQL & EmberData integration for ambitious apps!
+
+
+* [Installation](#installation)
+* [Minimal setup](#minimal-setup)
+* [Usage](#usage)
+   * [Transport layer](#transport-layer)
+* [Adapter](#adapter)
+   * [headers support](#headers-support)
+   * [handle error &amp; handle response](#handle-error--handle-response)
+   * [additional config](#additional-config)
+* [Serializer](#serializer)
+   * [custom modelName mapping](#custom-modelname-mapping)
+   * [custom modelName namespace separator](#custom-modelname-namespace-separator)
+* [Automatic model lookup](#automatic-model-lookup)
+* [Fastboot](#fastboot)
+   * [enhanced rehydration](#enhanced-rehydration)
+
 
 ## Installation
 
@@ -32,6 +50,56 @@ import GraphSerializer from 'ember-graph-data/serializer'
 
 export default GraphSerializer.extend()
 ```
+
+## Usage
+
+`app/routes/posts.js`
+```js
+import Route    from '@ember/routing/route'
+import query    from 'my-app/gql/queries/posts'
+import mutation from 'my-app/gql/mutations/post-create'
+
+export default Route.extend({
+  model(params) {
+    let variables = { page: 1 }
+    return this.store.graphQuery({query, variables})
+  }
+
+  actions: {
+    createPost(variables) {
+      return this.store.graphMutate({mutation, variables})
+    }
+  }
+})
+```
+
+### Transport layer
+
+Sometimes `json` is not sufficient in expressing our application needs. File upload is a good example. Of course it can be done by sending them in `base64` form, but it is extremely ineffective (particularly with big files). Or we can prepare special non-graphql endpoint on the server side. None of the above seems to be a good solution. That's why `ember-graph-data` supports sending `graphql` queries and mutations in `json` and `multipart` form. In `multipart` mode, adapter will serialize any file encountered in `variables` as another field in multipart request.
+
+`app/routes/images.js`
+```js
+import Route    from '@ember/routing/route'
+import query    from 'my-app/gql/queries/images'
+import mutation from 'my-app/gql/mutations/image-create'
+
+export default Route.extend({
+  model(params) {
+    let variables = { page: 1 }
+    return this.store.graphQuery({query, variables})
+  }
+
+  actions: {
+    createImage(file) {
+      let variables = { file }
+      let options =   { transport: 'multipart' }
+      return this.store.graphMutate({mutation, variables, options})
+    }
+  }
+})
+```
+On the server side it was tested with:
+* [absinthe_plug](https://github.com/absinthe-graphql/absinthe_plug)
 
 ## Adapter
 ### headers support
@@ -193,25 +261,9 @@ query users {
 
 In result of above actions, you will get an array of User models. You can also inspect those models in a `Data` tab of Ember inspector. Moreover, each User will have association `role` properly set. Simple, yet powerful.
 
+# Fastboot
+Fastboot is supported by default.
 
-## Usage
+## enhanced rehydration
 
-`app/routes/posts.js`
-```js
-import Route    from '@ember/routing/route'
-import query    from 'my-app/gql/queries/posts'
-import mutation from 'my-app/gql/queries/posts'
-
-export default Route.extend({
-  model(params) {
-    let variables = { page: 1 }
-    return this.store.graphQuery({query, variables})
-  }
-
-  actions: {
-    createPost(variables) {
-      return this.store.graphMutate({mutation, variables})
-    }
-  }
-})
-```
+Moreover, this addon supports automatic requests caching in [Shoebox](https://github.com/ember-fastboot/ember-cli-fastboot#the-shoebox). Thanks to this, application does not need to refetch already gathered data on the browser side. Mechanics of this process is provided by [ember-cached-shoe](https://github.com/Appchance/ember-cached-shoe). More details to be found in this addon README.
