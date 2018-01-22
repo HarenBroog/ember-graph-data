@@ -12,6 +12,8 @@ import {
   underscore
 } from '@ember/string'
 
+import ArrayProxy from '@ember/array/proxy'
+
 export default DS.JSONSerializer.extend({
   isNewSerializerAPI: true,
 
@@ -31,7 +33,10 @@ export default DS.JSONSerializer.extend({
     return payload
   },
 
-  _normalizeArray(array) { return array.map(item => this._normalize(item)) },
+  _normalizeArray(array) { 
+    let content = array.map(item => this._normalize(item))
+    return ArrayProxy.create({ content })
+  },
 
   _normalizeModel(payload, modelClass = null) {
     modelClass = modelClass || this.extractModelClass(payload)
@@ -42,6 +47,7 @@ export default DS.JSONSerializer.extend({
       attributes:    this.extractAttributes(modelClass, payload),
       relationships: this.extractRelationships(modelClass, payload)
     }
+    
     this.applyTransforms(modelClass, resourceHash.attributes)
     return this.get('store').push({data: resourceHash})
   },
