@@ -22,7 +22,7 @@ export const objectReject = (object, fun) => {
     (val, key) => !fun(val, key)
   )
 }
-export const isObject = val => val instanceof Object && Object.keys(val).length > 0
+export const isObject = val => val && typeof val === 'object' && Object.keys(val).length > 0
 
 export const extractFiles = (tree, treePath = '') => {
   const files = []
