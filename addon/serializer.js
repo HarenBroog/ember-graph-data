@@ -6,6 +6,7 @@ import DS from 'ember-data'
 import {mapValues, isObject} from './utils'
 import {isNone} from '@ember/utils'
 import {isArray} from '@ember/array'
+import ArrayProxy from '@ember/array/proxy'
 import {get} from '@ember/object'
 import {
   camelize,
@@ -31,7 +32,11 @@ export default DS.JSONSerializer.extend({
     return payload
   },
 
-  _normalizeArray(array) { return array.map(item => this._normalize(item)) },
+  _normalizeArray(array) { 
+    return ArrayProxy.create({
+      content: array.map(item => this._normalize(item))
+    })
+  },
 
   _normalizeModel(payload, modelClass = null) {
     modelClass = modelClass || this.extractModelClass(payload)

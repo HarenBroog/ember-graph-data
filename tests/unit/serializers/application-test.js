@@ -34,7 +34,7 @@ const behavesLikePOJO = function() {
     let probablyUserBlogPosts = get(result, 'posts')
 
     expect(isModel(probablyUserRole, 'user/role')).to.be.ok
-    expect(isModel(probablyUserBlogPosts[0], 'user/blog-post')).to.be.ok
+    expect(isModel(probablyUserBlogPosts.get('firstObject'), 'user/blog-post')).to.be.ok
   })
 }
 

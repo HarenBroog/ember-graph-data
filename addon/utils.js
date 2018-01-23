@@ -22,17 +22,16 @@ export const objectReject = (object, fun) => {
     (val, key) => !fun(val, key)
   )
 }
-export const isObject = val => val instanceof Object && Object.keys(val).length > 0
+export const isObject = val => typeof val === 'object' && val !== null
 
 export const extractFiles = (tree, treePath = '') => {
   const files = []
-  const _isObject = node => typeof node === 'object' && node !== null
 
   const recurse = (node, nodePath) => {
     // Iterate enumerable properties of the node
     Object.keys(node).forEach(key => {
       // Skip non-object
-      if (!_isObject(node[key])) return
+      if (!isObject(node[key])) return
 
       const path = `${nodePath}${key}`
 
@@ -60,7 +59,7 @@ export const extractFiles = (tree, treePath = '') => {
     })
   }
 
-  if (_isObject(tree))
+  if (isObject(tree))
     // Recurse object tree
     recurse(
       tree,
